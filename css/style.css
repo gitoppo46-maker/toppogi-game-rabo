@@ -46,11 +46,26 @@ img {
   padding: 20px 7%;
   border-bottom: 1px solid var(--border);
 }
-
+.logo ing{
+ width:64px;
+ heigt:64px; 
+ object-fit: contain;
+}
+.logo span{
+ fomt-size: 18px;
+}
+@media (max-width:600px){
+  .logo ing{width:48px; height: 14px;}
+  .logo span{font-size: 14px;}
+}
+  
 .logo {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-decoration: none;
+  color: #222;
+  font-weight:bold;
 }
 
 .logo-mark {
