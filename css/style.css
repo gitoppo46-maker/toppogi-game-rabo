@@ -46,18 +46,32 @@ img {
   padding: 20px 7%;
   border-bottom: 1px solid var(--border);
 }
-.logo ing{
- width:64px;
- heigt:64px; 
- object-fit: contain;
+```css
+/* ロゴ画像 */
+.logo img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
-.logo span{
- fomt-size: 18px;
+
+/* ロゴの文字 */
+.logo span {
+  font-size: 18px;
 }
-@media (max-width:600px){
-  .logo ing{width:48px; height: 14px;}
-  .logo span{font-size: 14px;}
+
+/* スマートフォン対応 */
+@media (max-width: 600px) {
+  .logo img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .logo span {
+    font-size: 14px;
+  }
 }
+```
   
 .logo {
   display: flex;
