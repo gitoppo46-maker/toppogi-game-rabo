@@ -123,10 +123,11 @@
       window.goatcounter &&
       typeof window.goatcounter.visit_count === "function"
     ) {
-      window.goatcounter.visit_count({
-        path: "TOTAL",
-        append: "#visits"
-      });
+     window.goatcounter.visit_count({
+  path: "TOTAL",
+  append: "#visits",
+  no_cache: true
+});
     }
   });
 </script>
