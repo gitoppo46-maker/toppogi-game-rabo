@@ -111,30 +111,26 @@
     <p>© トッポギ定食ゲームラボ</p>
   </footer>
 
-  <script
-    data-goatcounter="https://toppogi.goatcounter.com/count"
-    async
-    src="https://gc.zgo.at/count.js">
-  </script>
+ <script
+  data-goatcounter="https://toppogi.goatcounter.com/count"
+  async
+  src="https://gc.zgo.at/count.js">
+</script>
 
-  <script>
-    (function () {
-      function showCount() {
-        if (
-          window.goatcounter &&
-          typeof window.goatcounter.visit_count === "function"
-        ) {
-          window.goatcounter.visit_count({
-            path: "TOTAL",
-            append: "#visits"
-          });
-        } else {
-          setTimeout(showCount, 200);
-        }
-      }
-
-      showCount();
-    })();
-  </script>
+<script>
+  window.addEventListener("load", function () {
+    if (
+      window.goatcounter &&
+      typeof window.goatcounter.visit_count === "function"
+    ) {
+      window.goatcounter.visit_count({
+        path: "TOTAL",
+        append: "#visits"
+      });
+    }
+  });
+</script>
+</body>
+</html>
 </body>
 </html>
