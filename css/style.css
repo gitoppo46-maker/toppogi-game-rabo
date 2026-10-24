@@ -63,8 +63,8 @@ img {
 /* スマートフォン対応 */
 @media (max-width: 600px) {
   .logo img {
-    width: 70px;
-    height: 48px;
+    width: 120px;
+    height: 50px;
   }
 
   .logo span {
