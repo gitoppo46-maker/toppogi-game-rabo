@@ -5,88 +5,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="トッポギ定食ゲームラボの訪問者カウンター">
   <title>訪問者カウンター | トッポギ定食ゲームラボ</title>
-  <style>
-    :root {
-      --background: #f4f3ef;
-      --surface: #ffffff;
-      --text: #252525;
-      --muted: #77766f;
-      --accent: #c85b43;
-      --border: #deddd6;
-    }
+ 
+<style>
+  * {
+    box-sizing: border-box;
+  }
 
-    * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
+    font-family: Arial, "Noto Sans JP", sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+    text-align: center;
+  }
 
+  h1 {
+    margin: 0 0 28px;
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  .counter-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  .counter-label {
+    margin: 0 0 12px;
+    color: #6b7280;
+    font-size: 15px;
+  }
+
+  .counter-number {
+    margin: 0;
+    color: #2563eb;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    overflow-wrap: anywhere;
+  }
+
+  .counter-message {
+    margin: 24px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  .home-link {
+    display: inline-block;
+    margin-top: 28px;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .home-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
     body {
-      margin: 0;
-      background: var(--background);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont,
-        "Noto Sans JP", "Yu Gothic", sans-serif;
-      line-height: 1.8;
+      padding: 28px 16px;
     }
 
-    header, main, footer {
-      padding: 22px 6%;
-    }
-
-    header, footer {
-      border-color: var(--border);
-      border-style: solid;
-    }
-
-    header { border-width: 0 0 1px; }
-
-    header a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    main {
-      max-width: 760px;
-      margin: 50px auto;
-      text-align: center;
-    }
-
-    .eyebrow {
-      color: var(--accent);
-      font-size: 11px;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
-
-    .counter-card {
-      margin-top: 30px;
-      padding: 35px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+    h1 {
+      font-size: 24px;
     }
 
     .counter-number {
-      margin: 16px 0;
-      font-size: clamp(28px, 7vw, 48px);
-      font-weight: bold;
-      color: var(--accent);
+      font-size: 40px;
     }
+  }
+</style>
 
-    .back-link {
-      display: inline-block;
-      margin-top: 25px;
-      padding: 10px 20px;
-      background: var(--text);
-      color: white;
-      border-radius: 5px;
-      text-decoration: none;
-    }
-
-    footer {
-      border-width: 1px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      text-align: center;
-    }
-  </style>
 </head>
 <body>
   <header>
