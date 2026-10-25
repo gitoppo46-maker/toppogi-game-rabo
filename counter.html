@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -5,138 +6,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="トッポギ定食ゲームラボの訪問者カウンター">
   <title>訪問者カウンター | トッポギ定食ゲームラボ</title>
- 
-<style>
-  * {
-    box-sizing: border-box;
-  }
 
-  body {
-    margin: 0;
-    padding: 40px 20px;
-    min-height: 100vh;
-    font-family: Arial, "Noto Sans JP", sans-serif;
-    background: #f4f6f8;
-    color: #1f2937;
-    text-align: center;
-  }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-  h1 {
-    margin: 0 0 28px;
-    font-size: 28px;
-    font-weight: 600;
-  }
-
-  .counter-card {
-    width: 100%;
-    max-width: 420px;
-    margin: 0 auto;
-    padding: 36px 24px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
-  }
-
-  .counter-label {
-    margin: 0 0 12px;
-    color: #6b7280;
-    font-size: 15px;
-  }
-
-  .counter-number {
-    margin: 0;
-    color: #2563eb;
-    font-size: 48px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    overflow-wrap: anywhere;
-  }
-
-  .counter-message {
-    margin: 24px 0 0;
-    padding-top: 20px;
-    border-top: 1px solid #e5e7eb;
-    color: #6b7280;
-    font-size: 14px;
-  }
-
-  .home-link {
-    display: inline-block;
-    margin-top: 28px;
-    color: #2563eb;
-    text-decoration: none;
-    font-size: 14px;
-  }
-
-  .home-link:hover {
-    text-decoration: underline;
-  }
-
-  @media (max-width: 480px) {
     body {
-      padding: 28px 16px;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      font-family: Arial, "Noto Sans JP", sans-serif;
+      background: #f4f6f8;
+      color: #1f2937;
+      text-align: center;
+    }
+
+    header {
+      margin-bottom: 56px;
+    }
+
+    header a {
+      color: #1f2937;
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    header a:hover {
+      color: #2563eb;
+    }
+
+    main {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin-bottom: 10px;
+      color: #64748b;
+      font-size: 12px;
+      letter-spacing: 3px;
     }
 
     h1 {
-      font-size: 24px;
+      margin: 0 0 16px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .intro {
+      margin-bottom: 32px;
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .counter-card {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 36px 24px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .counter-label {
+      margin: 0 0 14px;
+      color: #6b7280;
+      font-size: 15px;
     }
 
     .counter-number {
-      font-size: 40px;
+      margin: 0;
+      color: #2563eb;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      overflow-wrap: anywhere;
     }
-  }
-</style>
 
+    .counter-message {
+      margin: 24px 0 0;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 28px;
+      color: #2563eb;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 64px;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 28px 16px;
+      }
+
+      header {
+        margin-bottom: 40px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .counter-number {
+        font-size: 40px;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <header>
-    <a href="index.html"><strong>トッポギ定食ゲームラボ</strong></a>
+    <a href="index.html">
+      <strong>トッポギ定食ゲームラボ</strong>
+    </a>
   </header>
 
   <main>
     <p class="eyebrow">VISITOR COUNTER</p>
+
     <h1>訪問者カウンター</h1>
-    <p>サイトを見に来てくれてありがとうございます！</p>
+
+    <p class="intro">
+      サイトを見に来てくれてありがとうございます！
+    </p>
 
     <section class="counter-card">
-      <p>これまでの訪問数</p>
-     <iframe
-  src="https://toppogi.goatcounter.com/counter/TOTAL.html"
-  title="サイト全体の訪問数"
-  width="220"
-  height="80"
-  style="border: 0; max-width: 100%;"
-></iframe>
-      <p>また遊びに来てね。</p>
+      <p class="counter-label">これまでの訪問数</p>
+
+      <div class="counter-number" id="visits">
+        読み込み中...
+      </div>
+
+      <p class="counter-message">
+        また遊びに来てね。
+      </p>
     </section>
 
-    <a class="back-link" href="index.html">トップページへ戻る</a>
+    <a class="back-link" href="index.html">
+      ← トップページへ戻る
+    </a>
   </main>
 
   <footer>
     <p>© トッポギ定食ゲームラボ</p>
   </footer>
 
- <script
-  data-goatcounter="https://toppogi.goatcounter.com/count"
-  async
-  src="https://gc.zgo.at/count.js">
-</script>
+  <!-- GoatCounterの読み込み -->
+  <script
+    data-goatcounter="https://toppogi.goatcounter.com/count"
+    async
+    src="https://gc.zgo.at/count.js">
+  </script>
 
-<script>
-  window.addEventListener("load", function () {
-    if (
-      window.goatcounter &&
-      typeof window.goatcounter.visit_count === "function"
-    ) {
-     window.goatcounter.visit_count({
-  path: "TOTAL",
-  append: "#visits",
-  no_cache: true
-});
-    }
-  });
-</script>
+  <!-- 訪問数の表示 -->
+  <script>
+    var counterTimer = setInterval(function () {
+      if (
+        window.goatcounter &&
+        typeof window.goatcounter.visit_count === "function"
+      ) {
+        clearInterval(counterTimer);
+
+        window.goatcounter.visit_count({
+          path: "TOTAL",
+          append: "#visits"
+        });
+      }
+    }, 100);
+  </script>
 </body>
 </html>
