@@ -102,6 +102,58 @@
       background: #1d4ed8;
     }
 
+    .player-name-area {
+      margin: 14px 0;
+      text-align: left;
+    }
+
+    .player-name-area label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    #playerName {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .ranking {
+      margin-top: 22px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      text-align: left;
+    }
+
+    .ranking h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    #rankingList {
+      margin: 0;
+      padding-left: 28px;
+    }
+
+    #rankingList li {
+      padding: 6px 0;
+      overflow-wrap: anywhere;
+    }
+
+    #rankingMessage {
+      margin: 10px 0 0;
+      color: #64748b;
+      font-size: 12px;
+      text-align: center;
+    }
+
     .help {
       margin-top: 16px;
       color: #64748b;
@@ -145,9 +197,28 @@
         aria-label="弾幕よけゲーム画面">
       </canvas>
 
+      <div class="player-name-area">
+        <label for="playerName">ランキングに表示する名前（1〜12文字）</label>
+        <input
+          id="playerName"
+          type="text"
+          maxlength="12"
+          value="プレイヤー"
+          autocomplete="nickname"
+          placeholder="名前を入力">
+      </div>
+
       <div class="controls">
         <button id="startButton">ゲームスタート</button>
       </div>
+
+      <section class="ranking" aria-labelledby="rankingTitle">
+        <h2 id="rankingTitle">🏆 オンラインランキング TOP 3</h2>
+        <ol id="rankingList">
+          <li>ランキングを読み込み中...</li>
+        </ol>
+        <p id="rankingMessage">オンラインランキングに接続しています。</p>
+      </section>
 
       <p class="help">
         PC：矢印キー / WASD で移動<br>
@@ -163,13 +234,117 @@
     <p>© トッポギ定食ゲームラボ</p>
   </footer>
 
+  <!-- Supabaseの公開用JavaScriptライブラリ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+    // ▼ Supabaseの Project URL と Publishable key（または anon key）を設定してください。
+    // service_role / secret と書かれた秘密鍵は絶対に使わないでください。
+    const SUPABASE_URL = https://abbbcjgrsdljhydwatuh.supabase.co/rest/v1/;
+    const SUPABASE_ANON_KEY = sb_publishable_kiAY52hvnhRfptHolG0p4w_Tcs1c-Z9;
+
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
     const scoreText = document.getElementById("score");
     const lifeText = document.getElementById("life");
     const startButton = document.getElementById("startButton");
+    const playerNameInput = document.getElementById("playerName");
+    const rankingList = document.getElementById("rankingList");
+    const rankingMessage = document.getElementById("rankingMessage");
+
+    let supabaseClient = null;
+    let scoreSubmitted = false;
+
+    if (
+      window.supabase &&
+      SUPABASE_URL.startsWith("https://") &&
+      !SUPABASE_URL.includes("ここに") &&
+      SUPABASE_ANON_KEY &&
+      !SUPABASE_ANON_KEY.includes("ここに")
+    ) {
+      supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+    }
+
+    async function loadRanking() {
+      if (!supabaseClient) {
+        rankingList.replaceChildren();
+        const item = document.createElement("li");
+        item.textContent = "Supabaseの接続情報を設定してください。";
+        rankingList.appendChild(item);
+        rankingMessage.textContent = "接続設定がまだ完了していません。";
+        return;
+      }
+
+      rankingMessage.textContent = "ランキングを読み込み中...";
+      try {
+        const { data, error } = await supabaseClient
+          .from("game_scores")
+          .select("player_name, score, created_at")
+          .order("score", { ascending: false })
+          .order("created_at", { ascending: true })
+          .limit(3);
+
+        if (error) throw error;
+
+        rankingList.replaceChildren();
+
+        if (!data || data.length === 0) {
+          const item = document.createElement("li");
+          item.textContent = "まだスコアがありません。最初の記録を作ろう！";
+          rankingList.appendChild(item);
+        } else {
+          data.forEach((entry) => {
+            const item = document.createElement("li");
+            item.textContent = `${entry.player_name} — ${entry.score}点`;
+            rankingList.appendChild(item);
+          });
+        }
+
+        rankingMessage.textContent = "オンラインランキング";
+      } catch (error) {
+        console.error("ランキング読み込みエラー:", error);
+        rankingMessage.textContent =
+          "ランキングを読み込めませんでした。接続情報やSupabaseの設定を確認してください。";
+      }
+    }
+
+    async function submitScore() {
+      if (scoreSubmitted) return;
+      scoreSubmitted = true;
+
+      if (!supabaseClient) {
+        rankingMessage.textContent =
+          "接続設定が未完了のため、スコアを送信できません。";
+        return;
+      }
+
+      const playerName = playerNameInput.value.trim();
+      if (playerName.length < 1 || playerName.length > 12) {
+        rankingMessage.textContent =
+          "名前を1〜12文字で入力してから、もう一度プレイしてください。";
+        return;
+      }
+
+      rankingMessage.textContent = "スコアを送信中...";
+      try {
+        const { error } = await supabaseClient
+          .from("game_scores")
+          .insert([{ player_name: playerName, score: score }]);
+
+        if (error) throw error;
+
+        rankingMessage.textContent = "スコアを登録しました！";
+        await loadRanking();
+      } catch (error) {
+        console.error("スコア送信エラー:", error);
+        rankingMessage.textContent =
+          "スコアを登録できませんでした。Supabaseの設定を確認してください。";
+      }
+    }
 
     const WIDTH = canvas.width;
     const HEIGHT = canvas.height;
@@ -214,6 +389,7 @@
 
       gameOver = false;
       running = true;
+      scoreSubmitted = false;
 
       startButton.textContent = "リスタート";
     }
@@ -237,6 +413,7 @@
       keys = {};
       startButton.textContent = "もう一度遊ぶ";
       draw();
+      submitScore();
     }
 
     function spawnBullet() {
@@ -499,7 +676,7 @@
     startButton.addEventListener("click", startGame);
 
     draw();
+    loadRanking();
   </script>
 </body>
 </html>
-
