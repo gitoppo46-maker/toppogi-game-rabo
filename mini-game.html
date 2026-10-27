@@ -1,1 +1,505 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="トッポギ定食ゲームラボの弾幕よけミニゲーム">
+  <title>弾幕よけゲーム | トッポギ定食ゲームラボ</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      background: #f4f6f8;
+      color: #1f2937;
+      font-family: Arial, "Noto Sans JP", sans-serif;
+      text-align: center;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    header a,
+    .back-link {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: 26px;
+    }
+
+    .description {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .game {
+      width: 100%;
+      max-width: 480px;
+      margin: 24px auto;
+      padding: 16px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    #score {
+      color: #2563eb;
+    }
+
+    #life {
+      color: #dc2626;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #080c17;
+      border-radius: 8px;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .help {
+      margin-top: 16px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    footer {
+      margin-top: 32px;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="index.html"><strong>トッポギ定食ゲームラボ</strong></a>
+  </header>
+
+  <main>
+    <h1>弾幕よけゲーム</h1>
+    <p class="description">飛んでくる弾を避けて、できるだけ長く生き残ろう！</p>
+
+    <section class="game">
+      <div class="status">
+        <span id="score">SCORE: 0</span>
+        <span id="life">LIFE: ♥ ♥ ♥</span>
+      </div>
+
+      <canvas
+        id="gameCanvas"
+        width="400"
+        height="560"
+        aria-label="弾幕よけゲーム画面">
+      </canvas>
+
+      <div class="controls">
+        <button id="startButton">ゲームスタート</button>
+      </div>
+
+      <p class="help">
+        PC：矢印キー / WASD で移動<br>
+        スマホ：ゲーム画面を指でスライド<br>
+        弾に3回当たるとゲームオーバー！
+      </p>
+    </section>
+
+    <a class="back-link" href="index.html">← トップページへ戻る</a>
+  </main>
+
+  <footer>
+    <p>© トッポギ定食ゲームラボ</p>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const scoreText = document.getElementById("score");
+    const lifeText = document.getElementById("life");
+    const startButton = document.getElementById("startButton");
+
+    const WIDTH = canvas.width;
+    const HEIGHT = canvas.height;
+
+    const player = {
+      x: WIDTH / 2,
+      y: HEIGHT - 65,
+      radius: 9,
+      speed: 4
+    };
+
+    let bullets = [];
+    let keys = {};
+    let lives = 3;
+    let score = 0;
+    let running = false;
+    let gameOver = false;
+    let lastTime = 0;
+    let elapsed = 0;
+    let spawnTimer = 0;
+    let invincibleTimer = 0;
+    let animationId = null;
+    let pointerActive = false;
+    let pointerTarget = null;
+
+    function resetGame() {
+      player.x = WIDTH / 2;
+      player.y = HEIGHT - 65;
+
+      bullets = [];
+      keys = {};
+      lives = 3;
+      score = 0;
+      elapsed = 0;
+      spawnTimer = 0;
+      invincibleTimer = 0;
+      lastTime = 0;
+      pointerTarget = null;
+
+      scoreText.textContent = "SCORE: 0";
+      lifeText.textContent = "LIFE: ♥ ♥ ♥";
+
+      gameOver = false;
+      running = true;
+
+      startButton.textContent = "リスタート";
+    }
+
+    function startGame() {
+      if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+
+      resetGame();
+      draw();
+
+      animationId = requestAnimationFrame(loop);
+    }
+
+    function endGame() {
+      running = false;
+      gameOver = true;
+      pointerTarget = null;
+      keys = {};
+      startButton.textContent = "もう一度遊ぶ";
+      draw();
+    }
+
+    function spawnBullet() {
+      const radius = 5 + Math.random() * 3;
+
+      bullets.push({
+        x: radius + Math.random() * (WIDTH - radius * 2),
+        y: -radius,
+        radius: radius,
+        speed: 130 + Math.random() * 90 + Math.min(elapsed * 2, 100),
+        vx: (Math.random() - 0.5) * 35
+      });
+    }
+
+    function update(delta) {
+      elapsed += delta;
+      score = Math.floor(elapsed * 10);
+
+      scoreText.textContent = "SCORE: " + score;
+
+      // 時間が経つほど弾が増える
+      spawnTimer += delta;
+
+      const spawnInterval = Math.max(0.18, 0.65 - elapsed * 0.005);
+
+      while (spawnTimer >= spawnInterval) {
+        spawnTimer -= spawnInterval;
+        spawnBullet();
+      }
+
+      // キーボード操作
+      let dx = 0;
+      let dy = 0;
+
+      if (keys["ArrowLeft"] || keys["a"] || keys["A"]) dx--;
+      if (keys["ArrowRight"] || keys["d"] || keys["D"]) dx++;
+      if (keys["ArrowUp"] || keys["w"] || keys["W"]) dy--;
+      if (keys["ArrowDown"] || keys["s"] || keys["S"]) dy++;
+
+      if (dx !== 0 || dy !== 0) {
+        const length = Math.sqrt(dx * dx + dy * dy);
+        player.x += (dx / length) * player.speed * delta * 60;
+        player.y += (dy / length) * player.speed * delta * 60;
+      }
+
+      // タッチ・マウス操作
+      if (pointerTarget !== null) {
+        const amount = Math.min(1, delta * 12);
+        player.x += (pointerTarget.x - player.x) * amount;
+        player.y += (pointerTarget.y - player.y) * amount;
+      }
+
+      player.x = Math.max(
+        player.radius,
+        Math.min(WIDTH - player.radius, player.x)
+      );
+
+      player.y = Math.max(
+        player.radius,
+        Math.min(HEIGHT - player.radius, player.y)
+      );
+
+      // 弾の移動
+      for (const bullet of bullets) {
+        bullet.x += bullet.vx * delta;
+        bullet.y += bullet.speed * delta;
+
+        if (bullet.x < bullet.radius ||
+            bullet.x > WIDTH - bullet.radius) {
+          bullet.vx *= -1;
+        }
+      }
+
+      bullets = bullets.filter(
+        bullet => bullet.y < HEIGHT + bullet.radius
+      );
+
+      // 被弾後の無敵時間
+      if (invincibleTimer > 0) {
+        invincibleTimer -= delta;
+      } else {
+        for (let i = bullets.length - 1; i >= 0; i--) {
+          const bullet = bullets[i];
+          const distance = Math.hypot(
+            player.x - bullet.x,
+            player.y - bullet.y
+          );
+
+          if (distance < player.radius + bullet.radius) {
+            bullets.splice(i, 1);
+            lives--;
+            invincibleTimer = 1.0;
+
+            lifeText.textContent =
+              "LIFE: " + "♥ ".repeat(lives).trim();
+
+            if (lives <= 0) {
+              endGame();
+            }
+
+            break;
+          }
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      // 背景の星
+      ctx.fillStyle = "#64748b";
+
+      for (let i = 0; i < 35; i++) {
+        const x = (i * 83 + 17) % WIDTH;
+        const y = (i * 127 + 23) % HEIGHT;
+
+        ctx.fillRect(x, y, 2, 2);
+      }
+
+      // 敵弾
+      for (const bullet of bullets) {
+        ctx.beginPath();
+        ctx.arc(
+          bullet.x,
+          bullet.y,
+          bullet.radius,
+          0,
+          Math.PI * 2
+        );
+
+        ctx.fillStyle = "#f472b6";
+        ctx.fill();
+
+        ctx.strokeStyle = "#fbcfe8";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // 自機（小さな三角形）
+      if (invincibleTimer <= 0 ||
+          Math.floor(invincibleTimer * 12) % 2 === 0) {
+        ctx.beginPath();
+        ctx.moveTo(player.x, player.y - 12);
+        ctx.lineTo(player.x - 10, player.y + 10);
+        ctx.lineTo(player.x, player.y + 5);
+        ctx.lineTo(player.x + 10, player.y + 10);
+        ctx.closePath();
+
+        ctx.fillStyle = "#67e8f9";
+        ctx.fill();
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      if (!running) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 26px sans-serif";
+
+        if (gameOver) {
+          ctx.fillText("GAME OVER", WIDTH / 2, HEIGHT / 2 - 12);
+          ctx.font = "18px sans-serif";
+          ctx.fillText(
+            "SCORE: " + score,
+            WIDTH / 2,
+            HEIGHT / 2 + 25
+          );
+        } else {
+          ctx.fillText("DANMAKU DODGE", WIDTH / 2, HEIGHT / 2 - 12);
+          ctx.font = "16px sans-serif";
+          ctx.fillText(
+            "ボタンを押してスタート！",
+            WIDTH / 2,
+            HEIGHT / 2 + 25
+          );
+        }
+      }
+    }
+
+    function loop(timestamp) {
+      if (!running) {
+        animationId = null;
+        return;
+      }
+
+      if (lastTime === 0) lastTime = timestamp;
+
+      // タブ切り替えなどで大きく時間が飛ばないようにする
+      const delta = Math.min((timestamp - lastTime) / 1000, 0.05);
+      lastTime = timestamp;
+
+      update(delta);
+      draw();
+
+      if (running) {
+        animationId = requestAnimationFrame(loop);
+      } else {
+        animationId = null;
+      }
+    }
+
+    function setPointerTarget(event) {
+      const rect = canvas.getBoundingClientRect();
+
+      pointerTarget = {
+        x: (event.clientX - rect.left) * WIDTH / rect.width,
+        y: (event.clientY - rect.top) * HEIGHT / rect.height
+      };
+    }
+
+    canvas.addEventListener("pointerdown", event => {
+      if (!running) return;
+
+      pointerActive = true;
+      canvas.setPointerCapture(event.pointerId);
+      setPointerTarget(event);
+    });
+
+    canvas.addEventListener("pointermove", event => {
+      if (!running || !pointerActive) return;
+      setPointerTarget(event);
+    });
+
+    function releasePointer() {
+      pointerActive = false;
+      pointerTarget = null;
+    }
+
+    canvas.addEventListener("pointerup", releasePointer);
+    canvas.addEventListener("pointercancel", releasePointer);
+    canvas.addEventListener("lostpointercapture", releasePointer);
+
+    document.addEventListener("keydown", event => {
+      const key = event.key;
+
+      if ([
+        "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
+        "w", "a", "s", "d", "W", "A", "S", "D"
+      ].includes(key)) {
+        event.preventDefault();
+      }
+
+      keys[key] = true;
+    });
+
+    document.addEventListener("keyup", event => {
+      keys[event.key] = false;
+    });
+
+    window.addEventListener("blur", () => {
+      keys = {};
+      releasePointer();
+    });
+
+    startButton.addEventListener("click", startGame);
+
+    draw();
+  </script>
+</body>
+</html>
+
