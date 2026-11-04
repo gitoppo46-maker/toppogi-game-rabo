@@ -438,7 +438,7 @@
       spawnTimer += delta;
 
     
-      const spawnInterval = 0.18 + (0.52 * Math.exp(-elapsed * 0.01));
+      const spawnInterval = 0.18 + (0.01 * Math.exp(-elapsed * 0.01));
       while (spawnTimer >= spawnInterval) {
         spawnTimer -= spawnInterval;
         spawnBullet();
