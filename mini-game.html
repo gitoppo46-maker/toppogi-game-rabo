@@ -437,7 +437,7 @@
       // 時間が経つほど弾が増える
       spawnTimer += delta;
 
-      const spawnInterval = Math.max(0.18, 0.65 - elapsed * 0.005);
+      const spawnInterval = Math.max(0.18, 0.65 - elapsed * 0.105);
 
       while (spawnTimer >= spawnInterval) {
         spawnTimer -= spawnInterval;
